@@ -1,0 +1,5 @@
+flask>=1.0
+pymongo>=3.7
+mock
+inject
+locust
