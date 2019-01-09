@@ -40,7 +40,14 @@ class ReviewModel():
     def save(self):
         self._validateData()
         if len(self.errors) == 0:
-            self.da.save(self.data)
+            reviewData = {
+                    "userId": self.data["userId"],
+                    "profileName": self.data["profileName"],
+                    "score": self.data["score"],
+                    "summary": self.data["summary"],
+                    "text": self.data["text"]
+                    }
+            self.da.save(self.data["productId"], reviewData)
 
     def retrieveReviews(self):
         if self.lastId is not None:

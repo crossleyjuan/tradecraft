@@ -1,1 +1,1 @@
-curl http://localhost:5000/reviews/15
+curl http://localhost:5000/reviews/1

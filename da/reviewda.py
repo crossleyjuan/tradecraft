@@ -2,21 +2,22 @@ from db import appdb
 from bson.objectid import ObjectId
 
 class ReviewDA():
-    def save(self, data):
-        appdb.reviews.insert_one(data)
+    def save(self, productId, review):
+        appdb.reviews.update({ "productId": productId, "version": 2, "reviews_count": { "$lt": 20 }}, { "$push": { "reviews": review }, "$inc": { "reviews_count": 1 } }, upsert= True)
 
     def retrieveReviews(self, productId, lastId=None):
-        filter = { "productId": productId }
+        filter = { "productId": productId, "version": 2 }
         if lastId is not None:
             filter["_id"] = { "$gt": lastId }
-        result = [d for d in appdb.reviews.find(filter).sort([( "_id", 1 )]).limit(20)]
+        result = [d for d in appdb.reviews.find(filter).sort([( "_id", 1 )]).limit(1)]
 
         return result
 
     def _retrieveHistogram(self, productId):
         stages = []
-        match = { "$match": { "productId": productId }}
+        match = { "$match": { "productId": productId, "version": 2}}
         stages.append(match)
+        stages.append({ "$unwind": "$reviews" })
         group = { "$group": { "_id": "$score", "reviews": { "$sum": 1 }} }
         stages.append(group)
 
@@ -24,8 +25,9 @@ class ReviewDA():
 
     def _retrieveMedian(self, productId):
         stages = []
-        match = { "$match": { "productId": productId }}
+        match = { "$match": { "productId": productId, "version": 2 }}
         stages.append(match)
+        stages.append({ "$unwind": "$reviews" })
         group = {
             "$group": {
                 "_id": "",
@@ -33,7 +35,7 @@ class ReviewDA():
                     "$sum": 1
                 },
                 "values": {
-                    "$push": "$score"
+                    "$push": "$reviews.score"
                 }
             }
         }
@@ -114,7 +116,7 @@ class ReviewDA():
 
     def _retrieveReviewsWithMoreThanOneVersion(self, productId):
         stages = []
-        match = { "$match": { "productId": productId }}
+        match = { "$match": { "productId": productId, "version": 2 }}
         stages.append(match)
         stages.append({ "$unwind": "$versions" })
         stages.append({ "$group": { "_id": "$_id", "count": { "$sum": 1 } }})
@@ -139,18 +141,19 @@ class ReviewDA():
         return result
 
     def update(self, review):
-        cprevious = appdb.reviews.find({ "_id": ObjectId(review["_id"]) })
-
-        previous = cprevious.next()
-
-        if "versions" not in previous:
-            review["versions"] = []
-        else:
-            review["versions"] = previous["versions"]
-            previous.pop("version")
-
-        review["versions"].append(previous)
-        review["_id"] = ObjectId(review["_id"])
-
-        appdb.reviews.update({ "_id": review["_id"] }, review)
-
+        raise "Broken this is using the old schema"
+#        cprevious = appdb.reviews.find({ "_id": ObjectId(review["_id"]) })
+#
+#        previous = cprevious.next()
+#
+#        if "versions" not in previous:
+#            review["versions"] = []
+#        else:
+#            review["versions"] = previous["versions"]
+#            previous.pop("version")
+#
+#        review["versions"].append(previous)
+#        review["_id"] = ObjectId(review["_id"])
+#
+#        appdb.reviews.update({ "_id": review["_id"] }, review)
+#

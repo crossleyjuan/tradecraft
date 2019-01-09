@@ -32,7 +32,14 @@ class TestReview(unittest.TestCase):
         model.data = data
         model.save()
 
-        reviewDAMock.save.assert_called_once_with(data)
+        reviewData = {
+                "userId": data["userId"],
+                "profileName": data["profileName"],
+                "score": data["score"],
+                "summary": data["summary"],
+                "text": data["text"]
+                }
+        reviewDAMock.save.assert_called_once_with(data["productId"], reviewData)
 
     def tryMissingData(self, data, expectedErrors):
         reviewDAMock = MagicMock()
@@ -190,7 +197,7 @@ class TestReview(unittest.TestCase):
         model.data = json_example
         model.update()
 
-        reviewDAMock.updateReview.assert_called_once_with(json_example)
+        reviewDAMock.update.assert_called_once_with(json_example)
 
 if __name__ == '__main__':
     unittest.main()
