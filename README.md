@@ -1,6 +1,8 @@
 Readme
 ------
 
+Note: This is the version 3 of the tradecraft, if you want to see the version2 check the branches
+
 You may be best using virtualenv for python (https://virtualenv.pypa.io/en/latest/)
 
 Then do virtualenv .
