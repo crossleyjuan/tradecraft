@@ -1,6 +1,8 @@
 Readme
 ------
 
+Note: This is the version2 of the project, for latest version use the master
+
 You may be best using virtualenv for python (https://virtualenv.pypa.io/en/latest/)
 
 Then do virtualenv .
